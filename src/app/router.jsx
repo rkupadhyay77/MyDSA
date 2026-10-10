@@ -3,26 +3,61 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 
 const RouterContext = createContext(null);
 
+const KNOWN_ROUTE_PREFIXES = [
+  '/dashboard',
+  '/curriculum',
+  '/modules',
+  '/lessons',
+  '/visualizer',
+  '/problems',
+  '/analytics',
+  '/revision',
+  '/settings',
+];
+
+/**
+ * Resolves the current route from either:
+ * 1. URL hash (e.g., #/dashboard -> /dashboard) — works on GitHub Pages, /dist/index.html, and static hosts
+ * 2. URL pathname if it matches a known app route (e.g., http://localhost:5173/dashboard)
+ * 3. Defaults to '/' so sub-paths like /MyDSA/ or /dist/index.html render the Landing Page instead of 404.
+ */
+function resolveCurrentRoute() {
+  const hash = window.location.hash;
+  if (hash && hash.startsWith('#/')) {
+    return hash.slice(1) || '/';
+  }
+
+  const pathname = window.location.pathname || '/';
+  for (const prefix of KNOWN_ROUTE_PREFIXES) {
+    if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
+      return pathname;
+    }
+  }
+
+  return '/';
+}
+
 export function RouterProvider({ children }) {
-  const [path, setPath] = useState(() => window.location.pathname || '/');
+  const [path, setPath] = useState(() => resolveCurrentRoute());
 
   useEffect(() => {
-    const handlePopState = () => {
-      setPath(window.location.pathname || '/');
+    const syncRoute = () => {
+      setPath(resolveCurrentRoute());
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', syncRoute);
+    window.addEventListener('popstate', syncRoute);
+    return () => {
+      window.removeEventListener('hashchange', syncRoute);
+      window.removeEventListener('popstate', syncRoute);
+    };
   }, []);
 
-  const navigate = useCallback((to, options = {}) => {
+  const navigate = useCallback((to) => {
     if (!to) return;
-    if (options.replace) {
-      window.history.replaceState({}, '', to);
-    } else {
-      window.history.pushState({}, '', to);
-    }
-    setPath(to);
+    const normalized = to.startsWith('/') ? to : `/${to}`;
+    window.location.hash = normalized;
+    setPath(normalized);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
@@ -43,6 +78,7 @@ export function useRouter() {
 
 export function Link({ to, className = '', children, onClick, title, style }) {
   const { navigate } = useRouter();
+  const normalized = to && to.startsWith('/') ? to : `/${to || ''}`;
 
   const handleClick = (e) => {
     if (
@@ -57,11 +93,17 @@ export function Link({ to, className = '', children, onClick, title, style }) {
     }
     e.preventDefault();
     if (onClick) onClick(e);
-    navigate(to);
+    navigate(normalized);
   };
 
   return (
-    <a href={to} className={className} onClick={handleClick} title={title} style={style}>
+    <a
+      href={`#${normalized}`}
+      className={className}
+      onClick={handleClick}
+      title={title}
+      style={style}
+    >
       {children}
     </a>
   );
