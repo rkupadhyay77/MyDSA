@@ -2688,3 +2688,61 @@ p {
     padding: 1.25rem 1rem 2.5rem;
   }
 }
+
+/* ==========================================================================
+   Bottom Google AdSense Banner & App Footer
+   ========================================================================== */
+
+.app-bottom-footer {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 0 1.5rem 2.5rem;
+}
+
+.bottom-ad-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.bottom-ad-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ad-label-tag {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.ad-dev-note {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.app-footer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  padding-top: 0.5rem;
+}
+
+.footer-privacy-note {
+  color: var(--text-secondary);
+}
